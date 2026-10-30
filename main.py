@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastembed import TextEmbedding
 
@@ -6,14 +6,27 @@ app = FastAPI()
 
 model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
-class TextInput(BaseModel):
-    text: str
+
+class TextsInput(BaseModel):
+    texts: list[str]
+
 
 @app.get("/")
 def home():
     return {"status": "running"}
 
+
 @app.post("/embed")
-def embed(input: TextInput):
-    vector = list(model.embed([input.text]))[0].tolist()
-    return {"embedding": vector}
+def embed(input: TextsInput):
+    if len(input.texts) > 500:
+        raise HTTPException(status_code=400, detail="Max 500 texts per request")
+
+    embeddings = [
+        vec.tolist()
+        for vec in model.embed(input.texts, batch_size=32)
+    ]
+
+    return {
+        "count": len(embeddings),
+        "embeddings": embeddings,
+    }
