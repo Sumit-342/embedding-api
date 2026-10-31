@@ -18,12 +18,12 @@ def home():
 
 @app.post("/embed")
 def embed(input: TextsInput):
-    if len(input.texts) > 500:
-        raise HTTPException(status_code=400, detail="Max 500 texts per request")
+    if len(input.texts) > 100:
+        raise HTTPException(status_code=400, detail="Max 100 texts per request")
 
     embeddings = [
         vec.tolist()
-        for vec in model.embed(input.texts, batch_size=32)
+        for vec in model.embed(input.texts, batch_size=16)
     ]
 
     return {
