@@ -23,7 +23,7 @@ def embed(input: TextsInput):
 
     embeddings = [
         vec.tolist()
-        for vec in model.embed(input.texts, batch_size=16)
+        for vec in model.embed(input.texts, batch_size=8)
     ]
 
     return {
